@@ -5,7 +5,9 @@ A super simple FastAPI application that allows students to view and sign up for 
 ## Features
 
 - View all available extracurricular activities
-- Sign up for activities
+- Sign up students for activities as a signed-in teacher
+- Display active, database-backed school announcements
+- Add, edit, and delete announcements from the signed-in management dialog
 
 ## Getting Started
 
@@ -31,6 +33,16 @@ A super simple FastAPI application that allows students to view and sign up for 
 | ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
 | GET    | `/activities`                                                     | Get all activities with their details and current participant count |
 | POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity                                             |
+| GET    | `/announcements`                                                  | Get announcements active today                                      |
+| GET    | `/announcements/manage`                                           | Get all announcements (bearer session required)                     |
+| POST   | `/announcements`                                                  | Add an announcement (bearer session required)                       |
+| PUT    | `/announcements/{announcement_id}`                                | Modify an announcement (bearer session required)                    |
+| DELETE | `/announcements/{announcement_id}`                                | Delete an announcement (bearer session required)                    |
+
+Announcement create and update requests use JSON with a required `message` and
+`expiration_date` (`YYYY-MM-DD`). The optional `start_date` uses the same format.
+Management requests send the `session_token` returned by `/auth/login` as an
+`Authorization: Bearer <token>` header.
 
 ## Data Model
 
@@ -47,4 +59,10 @@ The application uses a simple data model with meaningful identifiers:
    - Name
    - Grade level
 
-All data is stored in memory, which means data will be reset when the server restarts.
+3. **Announcements** - Uses a generated identifier:
+   - Message
+   - Optional start date
+   - Required expiration date
+
+Activities, accounts, and announcements are stored in MongoDB. Login sessions are
+kept in application memory and end when the server restarts.
